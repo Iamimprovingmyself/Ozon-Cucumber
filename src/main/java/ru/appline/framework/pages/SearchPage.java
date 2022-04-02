@@ -27,6 +27,9 @@ public class SearchPage extends BasePage {
     @FindBy(xpath = "//*[text() = 'Samsung']/../..//input")
     private WebElement samsungCheckBox;
 
+    @FindBy(xpath = "//div[contains(text(), 'Дальше')]")
+    private WebElement nextPageBtn;
+
     @FindBy(xpath = "//*[text() = 'Beats']/../..//input")
     private WebElement beatsCheckBox;
     @FindBy(xpath = "//*[contains(text(), 'Высокий рейтинг')]/../../..//input")
@@ -135,6 +138,12 @@ public class SearchPage extends BasePage {
         }
         elementToBeClickable(basketElement).click();
         return application.getPage(BasketPage.class);
+    }
+
+    private void nextPageBtn() {
+        if(nextPageBtn.isDisplayed()) {
+            nextPageBtn.click();
+        }
     }
 
 
