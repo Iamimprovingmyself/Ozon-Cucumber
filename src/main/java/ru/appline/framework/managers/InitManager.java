@@ -1,5 +1,6 @@
 package ru.appline.framework.managers;
 
+import ru.appline.framework.model.Product;
 import ru.appline.framework.utils.PropsConst;
 
 import java.util.concurrent.TimeUnit;
@@ -10,6 +11,7 @@ import static ru.appline.framework.utils.PropsConst.PAGE_LOAD_TIMEOUT;
 public class InitManager {
     private static final TestPropManager properties = TestPropManager.getTestPropManager();
     private static final DriverManager driverManager = DriverManager.getINSTANCE();
+    private static final PageManager pageManager = PageManager.getINSTANCE();
 
     public static void initFramework() {
         driverManager.getDriver().manage().window().maximize();
@@ -22,6 +24,8 @@ public class InitManager {
 
     public static void quitFramework() {
         driverManager.quitDriver();
-        PageManager.getINSTANCE().shutDown();
+        pageManager.shutDown();
+        Product.listProducts.clear();
+
     }
 }

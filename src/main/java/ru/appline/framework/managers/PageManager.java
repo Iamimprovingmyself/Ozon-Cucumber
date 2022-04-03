@@ -1,6 +1,7 @@
 package ru.appline.framework.managers;
 
 import ru.appline.framework.pages.BasePage;
+import ru.appline.framework.pages.BasketPage;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -24,7 +25,6 @@ public class PageManager {
     public void shutDown() {
         mapPages.clear();
     }
-
     public <T extends BasePage> T getPage(Class<T> tClass) {
         if (mapPages.isEmpty() || mapPages.get(tClass.getName()) == null) {
             try {

@@ -6,8 +6,10 @@ import org.openqa.selenium.support.FindBy;
 import org.openqa.selenium.support.ui.ExpectedConditions;
 import ru.appline.framework.managers.DriverManager;
 import ru.appline.framework.model.Product;
+
 import java.util.List;
 import java.util.concurrent.TimeUnit;
+
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.fail;
 import static ru.appline.framework.model.Product.listProducts;
@@ -27,23 +29,27 @@ public class SearchPage extends BasePage {
     @FindBy(xpath = "//*[text() = 'Samsung']/../..//input")
     private WebElement samsungCheckBox;
 
-    @FindBy(xpath = "//div[contains(text(), 'Дальше')]")
-    private WebElement nextPageBtn;
-
     @FindBy(xpath = "//*[text() = 'Beats']/../..//input")
     private WebElement beatsCheckBox;
+
     @FindBy(xpath = "//*[contains(text(), 'Высокий рейтинг')]/../../..//input")
     private WebElement maxRatingCheckBox;
+
     @FindBy(xpath = "//div[contains(@class,'search-result')]/div/div")
     private List<WebElement> allSearchElements;
+
     @FindBy(xpath = "//header/div/div/a/span[text() = 'Корзина']/../span[position() = 1]")
     private WebElement basketCountElement;
+
     @FindBy(xpath = "//header/div/div/a/span[text() = 'Корзина']/..//*[@class][position() = 2]")
     private WebElement basketElement;
+
     @FindBy(xpath = "//div[contains(@data-widget, 'searchResultsFilters')]")
     private WebElement searchFiltersElement;
+
     @FindBy(xpath = "//div[contains(text(), 'Бренды')]/..//span[@class='show']")
     private WebElement btn;
+
     private WebElement element;
 
     public SearchPage clickProductSearch(Integer upLimit) {
@@ -81,8 +87,7 @@ public class SearchPage extends BasePage {
                 element = xiaomiCheckBox;
                 break;
             default:
-                fail("Поле с наименованием '" + nameField + "' отсутствует на странице " +
-                        "'Поиска'");
+                fail("Поле с наименованием '" + nameField + "' отсутствует на странице " + "'Поиска'");
 
         }
         Actions act = new Actions(DriverManager.getINSTANCE().getDriver());
@@ -90,11 +95,7 @@ public class SearchPage extends BasePage {
         act.moveToElement(element.findElement(By.xpath("./..")));
         if (Boolean.parseBoolean(value) ^ Boolean.parseBoolean(element.getAttribute("checked"))) {
             element.findElement(By.xpath("./..")).click();
-            //try {
-            //wait.until(ExpectedConditions.attributeContains(element, "checked", value));
             utilWaitSearchFiltersElement(nameField);
-            //} catch (TimeoutException | StaleElementReferenceException e) {
-            // fail("Элемент '" + nameField + "' не был установлен в необходимое значение " + value);
         }
         return this;
     }
@@ -121,31 +122,41 @@ public class SearchPage extends BasePage {
     public BasketPage fillBasketWithHP() {
         int arraySize = 0;
         int j = 0;
-        while (arraySize * 2 < allSearchElements.size()) {
-            List<WebElement> inBasket = allSearchElements.get(arraySize * 2).findElements(By.xpath(".//span[text()='В корзину']"));
-            if (inBasket.size() == 2) {
-                (inBasket.get(1)).click();
-                add(allSearchElements.get(arraySize * 2));
-                j++;
-                wait.until(ExpectedConditions.textToBePresentInElement(basketCountElement, "" + j));
-            } else if (inBasket.size() == 1 & !inBasket.get(0).findElement(By.xpath("./../../../../..//b")).getText().contains("час")) {
-                (inBasket.get(0)).click();
-                add(allSearchElements.get(arraySize * 2));
-                j++;
-                wait.until(ExpectedConditions.textToBePresentInElement(basketCountElement, "" + j));
+        do {
+            while (arraySize * 2 < allSearchElements.size()) {
+                List<WebElement> inBasket = allSearchElements.get(arraySize * 2).findElements(By.xpath(".//span[text()='В корзину']"));
+                if (inBasket.size() == 2) {
+                    (inBasket.get(1)).click();
+                    add(allSearchElements.get(arraySize * 2));
+                    j++;
+                    wait.until(ExpectedConditions.textToBePresentInElement(basketCountElement, "" + j));
+                } else if (inBasket.size() == 1) {
+                    if (!inBasket.get(0).findElement(By.xpath("./../../../../..//b")).getText().contains("час")) {
+                        (inBasket.get(0)).click();
+                        add(allSearchElements.get(arraySize * 2));
+                        j++;
+                        wait.until(ExpectedConditions.textToBePresentInElement(basketCountElement, "" + j));
+                    } else if (!inBasket.get(0).findElement(By.xpath("./../../../../..//b")).getText().contains("час")){
+                        continue;
+
+                    }
+                }
+                arraySize++;
             }
-            arraySize++;
-        }
+            arraySize = 0;
+        } while (nextPage());
         elementToBeClickable(basketElement).click();
         return application.getPage(BasketPage.class);
     }
 
-    private void nextPageBtn() {
-        if(nextPageBtn.isDisplayed()) {
-            nextPageBtn.click();
+    private boolean nextPage() {
+        try {
+            driverManager.getDriver().findElement(By.xpath("//div[contains(text(), 'Дальше')]")).click();
+            return true;
+        } catch (NoSuchElementException exception) {
+            return false;
         }
     }
-
 
     public void viewAllBrandsElements() {
         try {
@@ -163,7 +174,6 @@ public class SearchPage extends BasePage {
             try {
                 scrollToElementJs(searchFiltersElement);
                 isPresentText = searchFiltersElement.getText().replaceAll("[^A-Za-zА-Яа-я0-9]", "").contains(s);
-                //explicitWait(1000);
                 i++;
             } catch (StaleElementReferenceException e) {
                 System.out.println("StaleElementReferenceException №" + i);
